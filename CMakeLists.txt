@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
-project(MyProcessor)
+project(MyProcessor CXX)
 
 include(dependencies.cmake)
 

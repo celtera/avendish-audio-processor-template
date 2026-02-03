@@ -8,17 +8,17 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Checkout dependencies
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ossia/score
           submodules: "recursive"
           path: score
 
       - name: Checkout Max SDK
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: jcelerier/max-sdk-base
           submodules: "recursive"

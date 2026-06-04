@@ -48,6 +48,8 @@ jobs:
 
           cmake .. \
             -DBOOST_ROOT=/c/ossia-sdk/boost \
+            -DBoost_NO_BOOST_CMAKE=ON \
+            -DCMAKE_POLICY_DEFAULT_CMP0167=OLD \
             -Dpybind11_DIR=$SDK_3RDPARTY/libossia/3rdparty/pybind11 \
             -DAVND_MAXSDK_PATH=$MAX_SDK \
             -DVST3_SDK_ROOT=$SDK_3RDPARTY/vst3 \
@@ -68,6 +70,8 @@ jobs:
 
           cmake .. \
             -DBOOST_ROOT=/c/ossia-sdk/boost \
+            -DBoost_NO_BOOST_CMAKE=ON \
+            -DCMAKE_POLICY_DEFAULT_CMP0167=OLD \
             -Dpybind11_DIR=$SDK_3RDPARTY/libossia/3rdparty/pybind11 \
             -DAVND_MAXSDK_PATH=$MAX_SDK \
             -DVST3_SDK_ROOT=$SDK_3RDPARTY/vst3 \

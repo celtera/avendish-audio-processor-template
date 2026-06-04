@@ -1,14 +1,5 @@
+// The MyProcessor implementation lives entirely in Model.hpp (inline), because the
+// Avendish back-ends compile the header directly and several do not link this library.
+// This translation unit only exists so the MyProcessor CMake target has a source to
+// compile; put any non-inline / heavy helper code here if you ever need it.
 #include "Model.hpp"
-
-void MyProcessor::operator()(int N)
-{
-  for(int i = 0; i < this->inputs.audio.channels(); i++)
-  {
-    auto* in = this->inputs.audio[i];
-    auto* out = this->outputs.audio[i];
-    for (int j = 0; j < N; j++)
-    {
-      out[j] = in[j] * inputs.gain;
-    }
-  }
-}

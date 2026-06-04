@@ -37,3 +37,20 @@ public:
   // Defined in UI.hpp
   struct ui;
 };
+
+// Defined inline here, not in a separate .cpp: Avendish back-ends compile this header
+// directly and several (e.g. the GDExtension / DLL-style modules) do not link the
+// MyProcessor library, so a .cpp-defined operator() is an unresolved external at link
+// time on strict linkers (macOS/Windows). Keep the processing logic in the header.
+inline void MyProcessor::operator()(int N)
+{
+  for(int i = 0; i < this->inputs.audio.channels(); i++)
+  {
+    auto* in = this->inputs.audio[i];
+    auto* out = this->outputs.audio[i];
+    for(int j = 0; j < N; j++)
+    {
+      out[j] = in[j] * inputs.gain;
+    }
+  }
+}

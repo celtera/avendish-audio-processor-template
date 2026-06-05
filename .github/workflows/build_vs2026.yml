@@ -27,12 +27,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Checkout CLAP SDK
-        uses: actions/checkout@v4
-        with:
-          repository: free-audio/clap
-          path: clap-sdk
-
+      # NOTE: CLAP is intentionally *not* provided here. Avendish's CLAP binding does not
+      # compile under plain MSVC cl (clap/audio_effect.hpp: error C2027 "use of undefined
+      # type SimpleAudioEffect"); clang-cl compiles it fine, so CLAP is built and shipped
+      # by build_cmake.yml's Windows job. Without the CLAP headers, avnd_make_clap simply
+      # skips (find_path(clap/clap.h) fails), keeping this MSVC job green. Re-add the
+      # checkout + -DCMAKE_PREFIX_PATH below once the binding builds under cl.
       - name: Checkout VST3 SDK
         uses: actions/checkout@v4
         with:
@@ -91,7 +91,6 @@ jobs:
             -DTOUCHDESIGNER_SDK_PATH="$PWD/touchdesigner-sdk" \
             -DAVND_MAXSDK_PATH="$PWD/max-sdk-base" \
             -DVST3_SDK_ROOT="$PWD/vst3sdk" \
-            -DCMAKE_PREFIX_PATH="$PWD/clap-sdk" \
             -DPython_EXECUTABLE="$(python -c 'import sys; print(sys.executable)')" \
             -Dpybind11_DIR="$(python -m pybind11 --cmakedir)" \
             -DBOOST_ROOT="$PWD/boost" \

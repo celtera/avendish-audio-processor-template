@@ -97,7 +97,6 @@ jobs:
             -DBOOST_ROOT="$PWD/boost" \
             -DBoost_NO_BOOST_CMAKE=ON \
             -DCMAKE_POLICY_DEFAULT_CMP0167=OLD \
-            -DCMAKE_CXX_FLAGS="/Zc:lambda" \
             -DSMTG_ENABLE_VSTGUI_SUPPORT=OFF \
             -DSMTG_ADD_VSTGUI=OFF \
             -DSMTG_CREATE_PLUGIN_LINK=OFF \

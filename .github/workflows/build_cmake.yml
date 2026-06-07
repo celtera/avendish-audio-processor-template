@@ -72,7 +72,7 @@ jobs:
               os: macos-26,
               triple: "macos-clang-aarch64",
               dependencies: "brew install ninja",
-              common_flags: ""
+              common_flags: "-DCMAKE_CXX_FLAGS=\"-include exception\""
             }
 
     steps:

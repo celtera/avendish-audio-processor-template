@@ -2,106 +2,14 @@ name: VS2026 build
 
 on: push
 
-# Builds the template with the *plain MSVC* toolchain (cl / lld via Ninja), as opposed
-# to build_cmake.yml which uses clang-cl on Windows. This exercises the MSVC code path,
-# which is viable since Avendish's fake_object_for_indices definition gained an MSVC
-# branch (without it, cl fails to link with LNK2001 while clang-cl elides the symbol).
-#
-# Runner note: GitHub's windows-2025 image currently ships the Visual Studio 2022 build
-# tools. ilammy/msvc-dev-cmd selects the newest Visual Studio present, so this uses
-# whatever MSVC the image provides and will pick up VS 2026 automatically once it lands
-# on the image. To force a specific toolset, pass `vsversion`/`toolset` to msvc-dev-cmd,
-# or switch `runs-on` to `windows-2026` when that image is available.
-#
-# Self-contained, like build_cmake.yml: all SDKs are fetched here (CLAP, VST3 built lean,
-# Max, TouchDesigner), Boost is downloaded, godot-cpp is auto-fetched, pybind11 via pip.
-
-env:
-  BOOST_URL: "https://github.com/ossia/score-sdk/releases/download/sdk31/boost_1_90_0.tar.gz"
-
 jobs:
   build:
     name: VS2026
     runs-on: windows-2025
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Checkout CLAP SDK
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ossia/actions/avendish-template@master
         with:
-          repository: free-audio/clap
-          path: clap-sdk
-
-      - name: Checkout VST3 SDK
-        uses: actions/checkout@v4
-        with:
-          repository: steinbergmedia/vst3sdk
-          submodules: "recursive"
-          path: vst3sdk
-
-      - name: Checkout TouchDesigner SDK headers
-        uses: actions/checkout@v4
-        with:
-          repository: jcelerier/CustomOperatorSamples
-          ref: add-pop-headers
-          path: touchdesigner-sdk
-
-      - name: Checkout Max SDK
-        uses: actions/checkout@v4
-        with:
-          repository: jcelerier/max-sdk-base
-          submodules: "recursive"
-          path: max-sdk-base
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install pybind11
-        shell: bash
-        run: python -m pip install --upgrade pip pybind11
-
-      - name: Install Ninja
-        shell: bash
-        run: choco install -y ninja
-
-      # Selects the newest Visual Studio on the image and puts cl / link on PATH.
-      - name: Set up MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Set up Boost
-        shell: bash
-        run: |
-          curl -fsSL "$BOOST_URL" -o boost.tar.gz
-          mkdir -p boost/include
-          tar -xzf boost.tar.gz --strip-components=1 --directory boost/include
-
-      - name: Build release
-        shell: bash
-        run: |
-          export BUILD_DIR=build-release
-          export VERBOSE=1
-
-          # No -DCMAKE_*_COMPILER: with the MSVC environment active and the Ninja
-          # generator, CMake auto-detects cl (plain MSVC), which is the point of this job.
-          cmake -S "$PWD" -B "$BUILD_DIR" -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DTOUCHDESIGNER_SDK_PATH="$PWD/touchdesigner-sdk" \
-            -DAVND_MAXSDK_PATH="$PWD/max-sdk-base" \
-            -DVST3_SDK_ROOT="$PWD/vst3sdk" \
-            -DCMAKE_PREFIX_PATH="$PWD/clap-sdk" \
-            -DPython_EXECUTABLE="$(python -c 'import sys; print(sys.executable)')" \
-            -Dpybind11_DIR="$(python -m pybind11 --cmakedir)" \
-            -DBOOST_ROOT="$PWD/boost" \
-            -DBoost_NO_BOOST_CMAKE=ON \
-            -DCMAKE_POLICY_DEFAULT_CMP0167=OLD \
-            -DSMTG_ENABLE_VSTGUI_SUPPORT=OFF \
-            -DSMTG_ADD_VSTGUI=OFF \
-            -DSMTG_CREATE_PLUGIN_LINK=OFF \
-            -DSMTG_RUN_VST_VALIDATOR=OFF \
-            -DSMTG_ENABLE_VST3_PLUGIN_EXAMPLES=OFF \
-            -DSMTG_ENABLE_VST3_HOSTING_EXAMPLES=OFF
-
-          cmake --build "$BUILD_DIR"
+          windows-compiler: 'cl'
+          clap: 'true'
+          vst3: 'true'

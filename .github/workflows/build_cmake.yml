@@ -16,6 +16,7 @@ jobs:
         with:
           clap: 'true'
           vst3: 'true'
+          pd: 'true'
 
   release:
     name: Release

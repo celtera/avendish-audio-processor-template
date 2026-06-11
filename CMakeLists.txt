@@ -10,7 +10,7 @@ if(NOT Avendish_FOUND)
   FetchContent_Declare(
     Avendish
     GIT_REPOSITORY "https://github.com/celtera/avendish"
-    GIT_TAG 49ba4e491e3ac1c9c775bdc911749f6328fa8b52)
+    GIT_TAG 6d95ff0bbb1524b5846e4222f5dc610f9e8d0b7a)
   FetchContent_Populate(Avendish)
   list(APPEND CMAKE_PREFIX_PATH "${avendish_SOURCE_DIR}")
   find_package(Avendish REQUIRED)

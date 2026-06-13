@@ -2,9 +2,11 @@ name: Build
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
-    branches: [main, master]
+    branches: [main, master, migrate-avnd-addon]
     tags: ['v*']
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

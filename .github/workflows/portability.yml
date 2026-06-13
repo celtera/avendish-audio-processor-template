@@ -1,0 +1,20 @@
+name: Portability
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    uses: ossia/actions/.github/workflows/avnd-portability.yml@master
+    secrets: inherit
+    # All 11 lanes default ON. Override here if specific platforms are
+    # known not to be relevant for this template:
+    # with:
+    #   esp32: false
+    #   rp2040: false

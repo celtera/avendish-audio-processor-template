@@ -27,6 +27,8 @@ jobs:
       touchdesigner: true
       python: true
       godot: true
-      standalone: true
+      # standalone left off: the avendish standalone backend is incomplete and
+      # pulls in a GUI toolkit (Qt / GLEW+glfw) we don't provision in CI.
+      standalone: false
       gstreamer: true
       wasm: true

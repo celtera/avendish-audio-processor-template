@@ -3,7 +3,8 @@ name: Portability
 on:
   pull_request:
   push:
-    branches: [main, master]
+    # migrate-avnd-addon is the in-review branch; drop it once this lands on main.
+    branches: [main, master, migrate-avnd-addon]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -11,7 +12,9 @@ concurrency:
 
 jobs:
   smoke:
-    uses: ossia/actions/.github/workflows/avnd-portability.yml@master
+    # Pinned to the feature branch while it's in review. Switch to @master once
+    # ossia/actions PR (drop-ossia-sdk-dep) lands.
+    uses: ossia/actions/.github/workflows/avnd-portability.yml@drop-ossia-sdk-dep
     secrets: inherit
     # All 11 lanes default ON. Override here if specific platforms are
     # known not to be relevant for this template:

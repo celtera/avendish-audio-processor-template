@@ -16,8 +16,9 @@ jobs:
     # ossia/actions PR (drop-ossia-sdk-dep) lands.
     uses: ossia/actions/.github/workflows/avnd-portability.yml@drop-ossia-sdk-dep
     secrets: inherit
-    # All 11 lanes default ON. Override here if specific platforms are
-    # known not to be relevant for this template:
-    # with:
-    #   esp32: false
-    #   rp2040: false
+    with:
+      # iOS off: Xcode multi-config intermediate-path plumbing fails for an
+      # audio-processing addon, and iOS isn't a meaningful target here. The
+      # other 20 lanes (desktop compilers + sanitizers, mingw, FreeBSD, wasm,
+      # Android, ESP32/RP2040) cover the portability surface.
+      ios: false

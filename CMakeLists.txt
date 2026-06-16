@@ -1,31 +1,36 @@
-cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 project(MyProcessor CXX)
 
-include(dependencies.cmake)
+# Use the Avendish the host already provides (e.g. ossia score); otherwise fetch it.
+# The same CMakeLists builds this as an ossia/score add-on or as a standalone object.
+find_package(Avendish QUIET)
+if(NOT Avendish_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(
+    Avendish
+    GIT_REPOSITORY "https://github.com/celtera/avendish"
+    GIT_TAG 6dacc12)
+  FetchContent_Populate(Avendish)
+  list(APPEND CMAKE_PREFIX_PATH "${avendish_SOURCE_DIR}")
+  find_package(Avendish REQUIRED)
+endif()
 
-add_library(MyProcessor STATIC
-  src/Model.cpp
-  src/Model.hpp
-  src/UI.hpp
-  src/Processor.hpp
-)
+avnd_addon_init(NAME MyProcessor)
 
-avnd_make_all(
-  TARGET MyProcessor
-  MAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/Processor.hpp"
-  MAIN_CLASS MyProcessor
+# CATEGORY all: every back-end family -- audio plug-ins (VST3 / CLAP / VST2), the object
+# bindings (Max / Pd / Python / TouchDesigner / Godot) and gstreamer. In a score build
+# only the ossia process is produced. Back-ends whose SDK is absent are silently skipped.
+avnd_addon_object(
+  BASE MyProcessor
   C_NAME my_processor
-)
+  CLASS MyProcessor
+  CATEGORY all
+  MAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/Processor.hpp"
+  SOURCES
+    src/Model.cpp
+    src/Model.hpp
+    src/UI.hpp
+    src/Processor.hpp)
 
-# Workaround: when godot-cpp is pulled in via FetchContent, its only targets are
-# `godot-cpp` (+ alias `godot::cpp`) — there is no `godot-cpp::godot-cpp`. Avendish's
-# avnd_make_godot doesn't always resolve the target, so the generated headers under
-# <godot-cpp-build>/gen/include never make it onto the GDExtension's include path and
-# compilation fails with "godot_cpp/classes/node.hpp not found". Re-linking the target
-# here (at a scope where it is visible) propagates godot-cpp's PUBLIC include dirs.
-foreach(godot_target MyProcessor_NODE_godot MyProcessor_AUDIO_EFFECT_godot)
-  if(TARGET ${godot_target} AND TARGET godot-cpp)
-    target_link_libraries(${godot_target} PRIVATE godot-cpp)
-  endif()
-endforeach()
+avnd_addon_finalize(NAME MyProcessor UUID a0ef0602-d1b2-46b7-9615-2049e1e97774 VERSION 1.0.0)

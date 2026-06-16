@@ -1,0 +1,30 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    uses: ossia/actions/.github/workflows/avnd-addon.yml@master
+    secrets: inherit
+    with:
+      pd: true
+      max: true
+      vst3: true
+      clap: true
+      vintage: true
+      touchdesigner: true
+      python: true
+      godot: true
+      # standalone left off: the avendish standalone backend is incomplete and
+      # pulls in a GUI toolkit (Qt / GLEW+glfw) we don't provision in CI.
+      standalone: false
+      gstreamer: true
+      wasm: true

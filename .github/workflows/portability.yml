@@ -1,0 +1,21 @@
+name: Portability
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-portability-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    uses: ossia/actions/.github/workflows/avnd-portability.yml@master
+    secrets: inherit
+    with:
+      # iOS off: Xcode multi-config intermediate-path plumbing fails for an
+      # audio-processing addon, and iOS isn't a meaningful target here. The
+      # other 20 lanes (desktop compilers + sanitizers, mingw, FreeBSD, wasm,
+      # Android, ESP32/RP2040) cover the portability surface.
+      ios: false

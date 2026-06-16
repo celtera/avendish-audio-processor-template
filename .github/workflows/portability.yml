@@ -3,18 +3,15 @@ name: Portability
 on:
   pull_request:
   push:
-    # migrate-avnd-addon is the in-review branch; drop it once this lands on main.
-    branches: [main, master, migrate-avnd-addon]
+    branches: [main, master]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-portability-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   smoke:
-    # Pinned to the feature branch while it's in review. Switch to @master once
-    # ossia/actions PR (drop-ossia-sdk-dep) lands.
-    uses: ossia/actions/.github/workflows/avnd-portability.yml@drop-ossia-sdk-dep
+    uses: ossia/actions/.github/workflows/avnd-portability.yml@master
     secrets: inherit
     with:
       # iOS off: Xcode multi-config intermediate-path plumbing fails for an

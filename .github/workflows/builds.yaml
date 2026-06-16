@@ -2,11 +2,9 @@ name: Build
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
   push:
-    branches: [main, master, migrate-avnd-addon]
+    branches: [main, master]
     tags: ['v*']
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -14,9 +12,7 @@ concurrency:
 
 jobs:
   ci:
-    # Pinned to the feature branch while it's in review. Switch to @master once
-    # ossia/actions PR (drop-ossia-sdk-dep) lands.
-    uses: ossia/actions/.github/workflows/avnd-addon.yml@drop-ossia-sdk-dep
+    uses: ossia/actions/.github/workflows/avnd-addon.yml@master
     secrets: inherit
     with:
       pd: true

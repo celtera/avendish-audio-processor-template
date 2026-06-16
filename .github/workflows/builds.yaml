@@ -3,7 +3,7 @@ name: Build
 on:
   pull_request:
   push:
-    branches: [main, master, migrate-avnd-addon]
+    branches: [main, master]
     tags: ['v*']
 
 concurrency:

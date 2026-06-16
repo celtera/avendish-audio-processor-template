@@ -3,7 +3,7 @@ name: Portability
 on:
   pull_request:
   push:
-    branches: [main, master, migrate-avnd-addon]
+    branches: [main, master]
 
 concurrency:
   group: ${{ github.workflow }}-portability-${{ github.event.pull_request.number || github.ref }}

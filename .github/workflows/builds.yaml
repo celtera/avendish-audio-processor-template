@@ -11,7 +11,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci:
+  # Build in/against ossia score: dev tree, SDK, and JIT artifact tracks.
+  score:
+    uses: ossia/actions/.github/workflows/score-addon.yml@master
+    secrets: inherit
+    with:
+      release: false  # the templates ship no release.sh
+
+  # Build the same object(s) standalone, one artifact per back-end.
+  standalone:
     uses: ossia/actions/.github/workflows/avnd-addon.yml@master
     secrets: inherit
     with:

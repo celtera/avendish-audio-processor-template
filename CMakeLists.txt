@@ -16,13 +16,13 @@ if(NOT Avendish_FOUND)
   find_package(Avendish REQUIRED)
 endif()
 
-avnd_addon_init(NAME MyProcessor)
+avnd_addon_init(NAME MyAudioAddon)
 
 # CATEGORY all: every back-end family -- audio plug-ins (VST3 / CLAP / VST2), the object
 # bindings (Max / Pd / Python / TouchDesigner / Godot) and gstreamer. In a score build
 # only the ossia process is produced. Back-ends whose SDK is absent are silently skipped.
 avnd_addon_object(
-  BASE MyProcessor
+  BASE MyAudioAddon
   C_NAME my_processor
   CLASS MyProcessor
   CATEGORY all
@@ -33,4 +33,4 @@ avnd_addon_object(
     src/UI.hpp
     src/Processor.hpp)
 
-avnd_addon_finalize(NAME MyProcessor UUID a0ef0602-d1b2-46b7-9615-2049e1e97774 VERSION 1.0.0)
+avnd_addon_finalize(NAME MyAudioAddon UUID a0ef0602-d1b2-46b7-9615-2049e1e97774 VERSION 1)

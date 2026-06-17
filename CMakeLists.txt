@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 project(MyProcessor CXX)
 
+# Max/MSP externals link the static CRT (/MT) on Windows, as the official
+# max-sdk-base requires. Set it for the whole addon -- before Avendish and the
+# object library are created -- so every target shares one runtime; mixing /MT
+# and /MD trips MSVC with LNK2038. (CMP0091 is NEW via cmake_minimum_required.)
+if(MSVC)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 # Use the Avendish the host already provides (e.g. ossia score); otherwise fetch it.
 # The same CMakeLists builds this as an ossia/score add-on or as a standalone object.
 find_package(Avendish QUIET)

@@ -54,3 +54,8 @@ inline void MyProcessor::operator()(int N)
     }
   }
 }
+
+// Pull in the UI so MyProcessor::ui is complete wherever this class header is
+// included -- the score plugin generator includes the class header, not the
+// MAIN_FILE, and needs the full ui type to build the process's layer.
+#include "UI.hpp"

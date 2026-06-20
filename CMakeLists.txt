@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 project(MyProcessor CXX)
 
+# This branch builds the object as a C++20 module: src/Processor.cppm is compiled
+# per back-end (each in its own dialect) and imported by the generated prototypes.
+# That needs a generator with module support and the module scanner enabled.
+if(NOT CMAKE_GENERATOR MATCHES "Ninja")
+  message(FATAL_ERROR
+    "The cxx_modules build needs a module-capable generator: configure with -G Ninja "
+    "(the Makefiles generator silently drops -fmodules).")
+endif()
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+
 # Max/MSP externals link the static CRT (/MT) on Windows, as the official
 # max-sdk-base requires. Set it for the whole addon -- before Avendish and the
 # object library are created -- so every target shares one runtime; mixing /MT
@@ -18,7 +28,9 @@ if(NOT Avendish_FOUND)
   FetchContent_Declare(
     Avendish
     GIT_REPOSITORY "https://github.com/celtera/avendish"
-    GIT_TAG 2b1519daca5c9bc2ea2e773133304cf2b51a2dd6)
+    # Avendish: first revision with the C++20 module path wired through every
+    # back-end (compile-per-backend + import-after-includes prototypes).
+    GIT_TAG f0c20f4557c5750e4e65cd9dba53d86d3f48d730)
   FetchContent_Populate(Avendish)
   list(APPEND CMAKE_PREFIX_PATH "${avendish_SOURCE_DIR}")
   find_package(Avendish REQUIRED)
@@ -34,11 +46,8 @@ avnd_addon_object(
   C_NAME my_processor
   CLASS MyProcessor
   CATEGORY all
-  MAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/Processor.hpp"
+  MAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/src/Processor.cppm"
   SOURCES
-    src/Model.cpp
-    src/Model.hpp
-    src/UI.hpp
-    src/Processor.hpp)
+    src/Model.cpp)
 
 avnd_addon_finalize(NAME MyAudioAddon UUID a0ef0602-d1b2-46b7-9615-2049e1e97774 VERSION 1)

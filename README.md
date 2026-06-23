@@ -1,5 +1,7 @@
 # Avendish processor template
 
+[![Build](https://github.com/celtera/avendish-audio-processor-template/actions/workflows/builds.yaml/badge.svg)](https://github.com/celtera/avendish-audio-processor-template/actions/workflows/builds.yaml)
+
 This provides a basic, canonical template for making objects with [Avendish](https://github.com/celtera/avendish).
 
 Note that some libraries are needed to access the various back-ends. They can be passed to CMake.

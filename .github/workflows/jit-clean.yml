@@ -1,0 +1,25 @@
+name: JIT clean test (2092)
+on: { push: { branches: [jit-clean-2092] }, workflow_dispatch: {} }
+jobs:
+  jit-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { path: addon }
+      - id: sdk
+        uses: ossia/actions/download-score-sdk@master
+        with: { version: continuous }
+      - name: Get score (continuous = #2092)
+        shell: bash
+        run: curl -L -O "https://github.com/ossia/score/releases/download/continuous/ossia.score-master-win64.exe" && 7z x -y "ossia.score-master-win64.exe"
+      - name: JIT compile add-on (clean - no stray ';')
+        shell: bash
+        env:
+          SCORE_JIT_SDK: ${{ steps.sdk.outputs.sdk-path }}
+          QT_QPA_PLATFORM: offscreen
+          SCORE_AUDIO_BACKEND: dummy
+          QT_FORCE_STDERR_LOGGING: 1
+          QT_ASSUME_STDERR_HAS_CONSOLE: 1
+        run: |
+          ./score.exe --no-gui --compile-addon ./addon
+          echo "score exit code: $?"

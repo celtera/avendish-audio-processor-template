@@ -36,5 +36,14 @@ jobs:
           export SCORE_JIT_SDK="$(pwd)/sdk/usr"
           if [ "${{ matrix.skip_init }}" = "on" ]; then export SCORE_JIT_SKIP_INIT=1; fi
           set +e
-          ./score.exe --no-gui --compile-addon ./addon
-          echo "SCORE_EXIT=$?"
+          ./score.exe --no-gui --compile-addon ./addon 2>&1 | tee score.log
+          EXIT=${PIPESTATUS[0]}
+          echo "SCORE_EXIT=$EXIT"
+          # Honest gate: the add-on must actually JIT-compile + load.
+          if grep -qiE "could not compile plug-in|out of range of Pointer32|JIT-error|lookup FAILED" score.log; then
+            echo "::error::JIT compile/link failed for the add-on"; exit 1
+          fi
+          if [ "$EXIT" -ne 0 ]; then
+            echo "::error::score.exe exited $EXIT (crash/non-zero)"; exit "$EXIT"
+          fi
+          echo "add-on JIT-compiled + loaded OK"

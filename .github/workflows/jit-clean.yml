@@ -1,27 +1,25 @@
 name: JIT diag test (PR2098)
-on: { push: { branches: [jit-clean-2092] }, workflow_dispatch: {} }
+on: { workflow_dispatch: {} }
 jobs:
   jit-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with: { path: addon }
-      - name: Download instrumented score (ossia/score PR #2098 artifact, no publish)
+      - name: Download latest instrumented score (jit-coff-load-diag artifact)
         shell: bash
         env: { GH_TOKEN: "${{ github.token }}" }
         run: |
           set -x
-          gh run download 28138612496 -R ossia/score -n windows --dir dl
+          RUN=$(gh run list -R ossia/score --branch jit-coff-load-diag --workflow "Windows build" -L 1 --json databaseId --jq '.[0].databaseId')
+          echo "diag run: $RUN"
+          gh run download "$RUN" -R ossia/score -n windows --dir dl
           ls -la dl
           7z x -y "dl/ossia score-merge-win64.exe" >/dev/null
           mkdir sdk && (cd sdk && unzip -qq "../dl/sdk-windows-x86_64.zip")
       - name: JIT compile add-on with INSTRUMENTED score
         shell: bash
-        env:
-          QT_QPA_PLATFORM: offscreen
-          SCORE_AUDIO_BACKEND: dummy
-          QT_FORCE_STDERR_LOGGING: 1
-          QT_ASSUME_STDERR_HAS_CONSOLE: 1
+        env: { QT_QPA_PLATFORM: offscreen, SCORE_AUDIO_BACKEND: dummy, QT_FORCE_STDERR_LOGGING: 1, QT_ASSUME_STDERR_HAS_CONSOLE: 1 }
         run: |
           export SCORE_JIT_SDK="$(pwd)/sdk/usr"
           set +e

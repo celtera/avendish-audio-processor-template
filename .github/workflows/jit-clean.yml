@@ -1,4 +1,4 @@
-name: JIT clean test (2092)
+name: JIT diag test (PR2098)
 on: { push: { branches: [jit-clean-2092] }, workflow_dispatch: {} }
 jobs:
   jit-windows:
@@ -6,16 +6,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { path: addon }
-      - name: Get score + SDK (continuous = #2092), self-contained
+      - name: Download instrumented score (ossia/score PR #2098 artifact, no publish)
         shell: bash
+        env: { GH_TOKEN: "${{ github.token }}" }
         run: |
           set -x
-          curl -L -O "https://github.com/ossia/score/releases/download/continuous/ossia.score-master-win64.exe"
-          curl -L -O "https://github.com/ossia/score/releases/download/continuous/sdk-windows-x86_64.zip"
-          7z x -y "ossia.score-master-win64.exe" >/dev/null
-          mkdir sdk && (cd sdk && unzip -qq ../sdk-windows-x86_64.zip)
-          ls; ls sdk
-      - name: JIT compile add-on (clean, no stray ';')
+          gh run download 28138612496 -R ossia/score -n windows --dir dl
+          ls -la dl
+          7z x -y "dl/ossia score-merge-win64.exe" >/dev/null
+          mkdir sdk && (cd sdk && unzip -qq "../dl/sdk-windows-x86_64.zip")
+      - name: JIT compile add-on with INSTRUMENTED score
         shell: bash
         env:
           QT_QPA_PLATFORM: offscreen
@@ -26,6 +26,4 @@ jobs:
           export SCORE_JIT_SDK="$(pwd)/sdk/usr"
           set +e
           ./score.exe --no-gui --compile-addon ./addon
-          rc=$?
-          echo "SCORE_EXIT=$rc"
-          exit $rc
+          echo "SCORE_EXIT=$?"

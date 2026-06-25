@@ -1,27 +1,40 @@
-name: JIT diag test (PR2098)
+name: JIT matrix (PR2098)
 on: { workflow_dispatch: {} }
 jobs:
-  jit-windows:
+  jit:
+    strategy:
+      fail-fast: false
+      matrix:
+        template: [audio, data, video, ml, geometry]
+        skip_init: ["off", "on"]
     runs-on: windows-latest
+    name: ${{ matrix.template }}-skipinit-${{ matrix.skip_init }}
     steps:
-      - uses: actions/checkout@v4
-        with: { path: addon }
-      - name: Download latest instrumented score (jit-coff-load-diag artifact)
+      - name: Checkout add-on
+        uses: actions/checkout@v4
+        with:
+          repository: celtera/avendish-${{ matrix.template }}-processor-template
+          path: addon
+      - name: Get instrumented score (ossia/score PR #2098 artifact)
         shell: bash
         env: { GH_TOKEN: "${{ github.token }}" }
         run: |
           set -x
-          RUN=$(gh run list -R ossia/score --branch jit-coff-load-diag --workflow "Windows build" -L 1 --json databaseId --jq '.[0].databaseId')
+          RUN=$(gh run list -R ossia/score --branch jit-coff-load-diag --workflow "Windows build" -L 8 --json databaseId,status --jq '[.[]|select(.status=="completed")][0].databaseId')
           echo "diag run: $RUN"
           gh run download "$RUN" -R ossia/score -n windows --dir dl
-          ls -la dl
           7z x -y "dl/ossia score-merge-win64.exe" >/dev/null
           mkdir sdk && (cd sdk && unzip -qq "../dl/sdk-windows-x86_64.zip")
-      - name: JIT compile add-on with INSTRUMENTED score
+      - name: JIT compile (skip_init=${{ matrix.skip_init }})
         shell: bash
-        env: { QT_QPA_PLATFORM: offscreen, SCORE_AUDIO_BACKEND: dummy, QT_FORCE_STDERR_LOGGING: 1, QT_ASSUME_STDERR_HAS_CONSOLE: 1 }
+        env:
+          QT_QPA_PLATFORM: offscreen
+          SCORE_AUDIO_BACKEND: dummy
+          QT_FORCE_STDERR_LOGGING: 1
+          QT_ASSUME_STDERR_HAS_CONSOLE: 1
         run: |
           export SCORE_JIT_SDK="$(pwd)/sdk/usr"
+          if [ "${{ matrix.skip_init }}" = "on" ]; then export SCORE_JIT_SKIP_INIT=1; fi
           set +e
           ./score.exe --no-gui --compile-addon ./addon
           echo "SCORE_EXIT=$?"
